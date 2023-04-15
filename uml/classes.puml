@@ -1,0 +1,103 @@
+@startuml
+package core {
+class MethodDescriptor
+
+class MethodImplementation
+class MethodImplementation.Dependency
+
+MethodImplementation "<TArgs, TRet>" o-- "<? extends TArgs, ? super TRet>" MethodDescriptor : implementationFor
+
+MethodImplementation --* MethodDescriptor : defaultImplementation
+
+class MethodDescriptor {
+	getName(): String
+	getArgType(): Class<TArgs>
+	getRetType(): Class<TRet>
+}
+
+class MethodImplementation {
+	getDependencies(): MethodImplementation.Dependency[]
+	call(AlgorithmPart root, TArgs): TRet
+	getLocks(AlgorithmPart root, TArgs): Lock[]
+}
+
+class MethodImplementation.Dependency {
+	method: MethodDescriptor<TArgs, ?>
+	partialArgs: TArgs
+}
+
+
+class AlgorithmPart
+class CompositeAlgorithmPart
+class Algorithm
+
+AlgorithmPart <|-- CompositeAlgorithmPart
+CompositeAlgorithmPart <|-- Algorithm
+
+CompositeAlgorithmPart o-- AlgorithmPart
+
+AlgorithmPart o-- "*" MethodImplementation
+
+class AlgorithmPart {
+	callMethod<TArgs, TRet>(AlgorithmPart root, MethodDescriptor<TArgs, TRet>, TArgs): TRet
+	getMethodImplementation<TArgs, TRet>(MethodDescriptor<TArgs, TRet>): MethodImplementation<TArgs, TRet>
+	getMethods(): Set<MethodDescriptor>
+	defaultRole: String
+}
+
+class CompositeAlgorithmPart {
+	setPart(String, AlgorithmPart)
+	setPart(AlgorithmPart)
+	getPart(String): AlgorithmPart
+	delPart(String)
+}
+
+class Context
+class SimulationObject
+
+CompositeAlgorithmPart <|-- Context
+AlgorithmPart <|-- SimulationObject
+Context o-- "*" SimulationObject
+Context o-- "1" Algorithm
+
+class Ant
+class Node
+class Edge
+class Network
+
+SimulationObject <|-- Ant
+SimulationObject <|-- Node
+SimulationObject <|-- Edge
+SimulationObject <|-- Network
+
+class Node {
+	scheduleTask<TArgs>(double, Context, MethodDescriptor<TArgs, ?>, TArgs)
+}
+
+class StoredValue
+
+SimulationObject *-- "*" StoredValue
+
+class StoredValue {
+	value: T
+	lock: ReadWriteLock
+}
+}
+
+package algorithms {
+EuclideanDistance --|> AlgorithmPart
+InverseDistanceHeuristic --|> AlgorithmPart
+InverseLerpNextSinkDistanceHeuristic --|> AlgorithmPart
+BacktrackPheromoneIncrease --|> AlgorithmPart
+ConeForwardNodes --|> AlgorithmPart
+AllForwardNodes --|> AlgorithmPart
+RadiusForwardNodes --|> AlgorithmPart
+}
+
+package util {
+	class IdentityHashCodeComparator
+	class CompositeLock {
+		locks: SortedSet<Lock>
+	}
+}
+@enduml

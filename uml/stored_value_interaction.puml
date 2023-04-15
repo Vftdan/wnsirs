@@ -1,0 +1,40 @@
+@startuml
+hide footbox
+autoactivate on
+
+== Get stored value ==
+[-> Context : callMethod("getPheromone")
+Context -> PheromoneOnEdges : callMethod("getPheromone")
+PheromoneOnEdges -> PheromoneOnEdges.GetPheromoneMethod : call()
+PheromoneOnEdges.GetPheromoneMethod -> Context : callMethod("getEdge")
+Context -> Edge : callMethod("getEdge")
+return Edge
+PheromoneOnEdges.GetPheromoneMethod <-- Context : Edge
+PheromoneOnEdges.GetPheromoneMethod -> Edge : getStoredValue("pheromone")
+Edge -> Edge : getOrCreateStored("pheromone")
+return StoredValue
+Edge -> StoredValue : getValue()
+
+Edge <-- StoredValue : pheromone
+PheromoneOnEdges.GetPheromoneMethod <-- Edge : pheromone
+PheromoneOnEdges <-- PheromoneOnEdges.GetPheromoneMethod : pheromone
+Context <-- PheromoneOnEdges : pheromone
+[<-- Context : pheromone
+/' [-> MethodImplementation : getHeuristic() '/
+/' MethodImplementation -> StoredValue '/
+
+== Get locks ==
+[-> PheromoneOnEdges.GetPheromoneMethod : getLocks()
+PheromoneOnEdges.GetPheromoneMethod -> Context : callMethod("getEdge")
+Context -> Edge : callMethod("getEdge")
+return Edge
+PheromoneOnEdges.GetPheromoneMethod <-- Context : Edge
+PheromoneOnEdges.GetPheromoneMethod -> Edge : getStoredValueLock("pheromone")
+Edge -> Edge : getOrCreateStored("pheromone")
+return StoredValue
+Edge -> StoredValue : getLock()
+
+Edge <-- StoredValue : ReadWriteLock
+PheromoneOnEdges.GetPheromoneMethod <-- Edge : ReadWriteLock
+[<-- PheromoneOnEdges.GetPheromoneMethod : {ReadLock}
+@enduml

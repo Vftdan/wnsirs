@@ -1,0 +1,44 @@
+@startuml
+hide footbox
+autoactivate off
+
+participant Scheduler
+queue NextTasks
+
+== Scheduling loop ==
+
+loop
+	activate Scheduler
+	Scheduler ->> NextTasks -- : getNext()
+	activate NextTasks
+	loop while peek().time - min_scheduling_delay > global_time
+		NextTasks ->>? : wait()
+		deactivate NextTasks
+		NextTasks <<--? : notify()
+		activate NextTasks
+	end
+	Scheduler <<-- NextTasks -- : task1
+	activate Scheduler
+	Scheduler ->> Thread1 -- : executeTask(task1)
+	activate Thread1
+	Thread1 -> task1 : getLock()
+	activate task1
+	Thread1 <-- task1 -- : lock
+	Thread1 -> Thread1 : lock.lock()
+	Thread1 ->> Scheduler : lockAcquired()
+	activate Scheduler
+	Thread1 -> task1 : run()
+	activate task1
+end
+
+== End of task ==
+
+deactivate Scheduler
+Thread1 <-- task1 --
+Thread1 -> Thread1 : lock.unlock()
+Thread1 -->> Scheduler -- : taskFinished()
+activate Scheduler
+Scheduler -> Scheduler : updateGlobalTime()
+Scheduler ->> NextTasks : notify()
+deactivate Scheduler
+@enduml
