@@ -1,7 +1,10 @@
 package io.github.vftdan.wnsirs;
 
+import java.util.*;
+
 import io.github.vftdan.wnsirs.core.*;
 import io.github.vftdan.wnsirs.methods.*;
+import io.github.vftdan.wnsirs.algorithms.*;
 
 /**
  * Hello world!
@@ -12,6 +15,7 @@ public class App {
 		System.out.println("Hello World!");
 		System.out.println(GetEdge.getInstance());
 		System.out.println(SetPheromone.getInstance());
+		var scheduler = new Scheduler();
 		var part = new SimpleAlgorithmPart() {{
 			defaultRole = "demoInitialization";
 			registerImplementation(new MethodImplementation<Void, Void>() {
@@ -23,40 +27,53 @@ public class App {
 				@Override
 				public Void call(AlgorithmPart root, Void args) {
 					System.out.println("Initialize!");
+					var ctx = (Context) root;
+					var nodes = new ArrayList<Node>(16);
+					var sink = new Node(new double[] {.5, .5});
+					for (int x = 0; x < 4; ++x) {
+						for (int y = 0; y < 4; ++y) {
+							var node = new Node(new double[] {x, y});
+							nodes.add(node);
+						}
+					}
+					nodes.add(sink);
+					for (int i = 0; i < nodes.size() - 1; ++i) {
+						var node = nodes.get(i);
+						var neighbors = new HashSet<Node>(nodes);
+						neighbors.remove(node);
+						node.neighbors = neighbors;
+						int k = i;
+						for (int j = 0; k > 0; k >>= 1, ++j) {
+							if ((k & 1) != 0) {
+								var newCtx = ctx.clone();
+								newCtx.setPart(node);
+								scheduler.scheduleTask(j, newCtx, LaunchAnt.getInstance(), sink);
+							}
+						}
+					}
 					return null;
 				}
 			});
 		}};
+		var net = new Network();
 		var algo = new Algorithm();
+		algo.setPart(new ForwardBackwardAnt());
 		algo.setPart(part);
-		var ctx = new Context();
+		var ctx = new Context(scheduler);
 		ctx.setPart(algo);
-		ctx.setPart(new Edge());
-		System.out.println("part.getMethods().size() = " + part.getMethods().size());
-		System.out.println("algo.getMethods().size() = " + algo.getMethods().size());
-		System.out.println("ctx.getMethods().size() = " + ctx.getMethods().size());
-		System.out.println("part.collectAllMethodImplementations(InitializeSimulation) -> {");
-		part.collectAllMethodImplementations(InitializeSimulation.getInstance(), (imp) -> {
-			System.out.println(imp);
-		});
-		System.out.println("}");
-		System.out.println("algo.collectAllMethodImplementations(InitializeSimulation) -> {");
-		algo.collectAllMethodImplementations(InitializeSimulation.getInstance(), (imp) -> {
-			System.out.println(imp);
-		});
-		System.out.println("}");
-		System.out.println("ctx.collectAllMethodImplementations(InitializeSimulation) -> {");
-		ctx.collectAllMethodImplementations(InitializeSimulation.getInstance(), (imp) -> {
-			System.out.println(imp);
-		});
-		System.out.println("}");
-		ctx.callMethod(ctx, InitializeSimulation.Emitter.getInstance(), null);
-		var edge = ctx.callMethod(ctx, GetEdge.getInstance(), null);
-		System.out.println("edge = " + edge);
-		System.out.println("edge.storedValues = " + edge.getValueStorage());
-		System.out.println("getPheromone() = " + ctx.callMethod(ctx, GetPheromone.getInstance(), null));
-		System.out.println("setPheromone(1) = " + ctx.callMethod(ctx, SetPheromone.getInstance(), (Double) 1.0));
-		System.out.println("edge.storedValues[\"pheromone\"] = " + edge.getValueStorage().getStored("pheromone", false));
-		System.out.println("getPheromone() = " + ctx.callMethod(ctx, GetPheromone.getInstance(), null));
+		ctx.setPart(net);
+		scheduler.scheduleTask(0, ctx, InitializeSimulation.getInstance(), null);
+		try {
+			scheduler.schedulingLoop();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		scheduler.terminate();
+		for (var edge: net.getEdges().values()) {
+			var startPos = edge.getStart().getPosition();
+			var endPos = edge.getEnd().getPosition();
+			System.out.println("Edge (" + startPos[0] + ", " + startPos[1] + ") -> (" + endPos[0] + ", " + endPos[1] + ")");
+			System.out.println("Pheromone = " + edge.callMethod(GetPheromone.getInstance()));
+		}
 	}
 }
