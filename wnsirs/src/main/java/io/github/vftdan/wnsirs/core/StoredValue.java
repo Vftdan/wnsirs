@@ -211,7 +211,7 @@ public class StoredValue<T> {
 	public static class ValueStorage {
 		protected Map<String, StoredValue> values = new HashMap<String, StoredValue>();
 
-		public <T> StoredValue<T> getStored(String key, boolean create) {
+		public synchronized <T> StoredValue<T> getStored(String key, boolean create) {
 			if (values == null)
 				return null;
 			if (create)
