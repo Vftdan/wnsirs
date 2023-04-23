@@ -1,5 +1,7 @@
 package io.github.vftdan.wnsirs.core;
 
+import java.util.*;
+
 import io.github.vftdan.wnsirs.methods.GetNode;
 
 public class Node extends SimulationObject {
@@ -16,5 +18,17 @@ public class Node extends SimulationObject {
 				return Node.this;
 			}
 		});
+	}
+
+	public Collection<Node> neighbors = new ArrayList<Node>();
+
+	protected double[] position;
+
+	public double[] getPosition() {
+		return position;
+	}
+
+	public Node(double[] position) {
+		this.position = position;
 	}
 }
