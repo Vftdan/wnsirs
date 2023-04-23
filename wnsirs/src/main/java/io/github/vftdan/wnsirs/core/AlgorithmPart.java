@@ -26,9 +26,16 @@ public abstract class AlgorithmPart {
 		callback.accept(imp);
 	}
 
-
 	public <TArgs, TRet> TRet callMethod(AlgorithmPart root, MethodDescriptor<TArgs, TRet> descr, TArgs args) {
 		return getMethodImplementation(descr).call(root, args);
+	}
+
+	public <TArgs, TRet> TRet callMethod(MethodDescriptor<TArgs, TRet> descr, TArgs args) {
+		return callMethod(this, descr, args);
+	}
+
+	public <TRet> TRet callMethod(MethodDescriptor<Void, TRet> descr) {
+		return callMethod(descr, null);
 	}
 
 	protected <TArgs, TRet> MethodImplementation<TArgs, TRet> getDefaultMethodImplementation(MethodDescriptor<TArgs, TRet> descr) {
