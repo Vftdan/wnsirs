@@ -98,6 +98,10 @@ public class StoredValue<T> {
 			@Override
 			public Collection<Lock> getLocks(AlgorithmPart root, Void args) {
 				ValueStorage storage = getValueStorage(root);
+				if (storage == null) {
+					// We expect that the storing object will only be created during MethodImplementation.call()
+					return Collections.emptyList();
+				}
 				var lock = storage.getLock(valueName);
 				return Collections.singleton(lock.readLock());
 			}
@@ -187,13 +191,17 @@ public class StoredValue<T> {
 			public Boolean call(AlgorithmPart root, T args) {
 				ValueStorage storage = getValueStorage(root);
 				if (storage == null)
-					return null;
+					return false;
 				return storage.setValue(valueName, args);
 			}
 
 			@Override
 			public Collection<Lock> getLocks(AlgorithmPart root, T args) {
 				ValueStorage storage = getValueStorage(root);
+				if (storage == null) {
+					// We expect that the storing object will only be created during MethodImplementation.call()
+					return Collections.emptyList();
+				}
 				var lock = storage.getLock(valueName);
 				return Collections.singleton(lock.writeLock());
 			}
@@ -227,7 +235,7 @@ public class StoredValue<T> {
 		}
 
 		public ReadWriteLock getLock(String key) {
-			StoredValue stored = getStored(key, false);
+			StoredValue stored = getStored(key, true);
 			if (stored == null)
 				return null;
 			return stored.lock;
