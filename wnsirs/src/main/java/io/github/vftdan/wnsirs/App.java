@@ -62,6 +62,7 @@ public class App {
 		var ctx = new Context(scheduler);
 		ctx.setPart(algo);
 		ctx.setPart(net);
+		ctx.callMethod(SetDefaultPheromone.getInstance(), 1.0);
 		scheduler.scheduleTask(0, ctx, InitializeSimulation.getInstance(), null);
 		try {
 			scheduler.schedulingLoop();
