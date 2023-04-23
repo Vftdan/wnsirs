@@ -10,8 +10,8 @@ public class CompositeLock implements Lock {
 	protected Stack<Lock> locked;
 
 	public CompositeLock(Collection<Lock> locks) {
-		locks = new TreeSet<Lock>(comparator);
-		locks.addAll(locks);
+		this.locks = new TreeSet<Lock>(comparator);
+		this.locks.addAll(locks);
 		locked = new Stack<Lock>();
 	}
 
