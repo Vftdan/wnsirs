@@ -41,7 +41,7 @@ public class ReceiveAnt extends MethodDescriptor<Void, Void> {
 
 		{
 			dependencies = new Dependency[] {
-				Dependency.fromDescriptor(GetNextNode.getInstance()),
+				// Dependency.fromDescriptor(GetNextNode.getInstance()),  // FIXME create a ReentrantReadWriteLock that allows the same thread to have both read and write lock?
 				Dependency.fromDescriptor(UpdateHistory.getInstance()),
 				Dependency.fromDescriptor(SetNextNode.getInstance()),
 				Dependency.fromDescriptor(GetScheduler.getInstance()),

@@ -46,7 +46,7 @@ public class SendAntTo extends MethodDescriptor<Node, Void> {
 
 		{
 			dependencies = new Dependency[] {
-				Dependency.fromDescriptor(GetNextNode.getInstance()),
+				// Dependency.fromDescriptor(GetNextNode.getInstance()),
 				Dependency.fromDescriptor(GetAnt.getInstance()),
 				Dependency.fromDescriptor(AntCloned.Emitter.getInstance()),
 				Dependency.fromDescriptor(SetNextNode.getInstance()),
