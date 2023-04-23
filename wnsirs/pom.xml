@@ -29,6 +29,9 @@
         <configuration>
           <source>10</source>
           <target>10</target>
+          <excludes>
+            <exclude>**/*.template.java</exclude>
+          </excludes>
         </configuration>
       </plugin>
       <plugin>
