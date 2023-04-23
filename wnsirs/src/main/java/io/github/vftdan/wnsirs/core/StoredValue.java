@@ -244,6 +244,12 @@ public class StoredValue<T> {
 		protected <T> StoredValue<T> createStoredValue(String key) {
 			return new StoredValue<T>();
 		}
+
+		public void copyTo(ValueStorage other) {
+			for (var entry: values.entrySet()) {
+				other.setValue(entry.getKey(), entry.getValue().value);
+			}
+		}
 	}
 
 	public interface WithValueStorage {
