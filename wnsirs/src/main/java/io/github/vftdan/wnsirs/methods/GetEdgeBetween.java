@@ -36,7 +36,10 @@ public class GetEdgeBetween extends MethodDescriptor<Pair<Node, Node>, Edge> {
 		public Edge call(AlgorithmPart root, Pair<Node, Node> args) {
 			var net = root.callMethod(GetNetwork.getInstance());
 			var edges = net.getEdges();
-			return edges.computeIfAbsent(args, (ends) -> createEdge(root, ends));
+			synchronized(edges) {
+				// Make sure that createEdge cannot lock the things that other threads can lock before calling GetEdgeBetween
+				return edges.computeIfAbsent(args, (ends) -> createEdge(root, ends));
+			}
 		}
 
 		{

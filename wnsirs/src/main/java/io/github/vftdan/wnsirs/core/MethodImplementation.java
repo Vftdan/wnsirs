@@ -1,6 +1,7 @@
 package io.github.vftdan.wnsirs.core;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
 public abstract class MethodImplementation<TArgs, TRet> {
@@ -49,7 +50,10 @@ public abstract class MethodImplementation<TArgs, TRet> {
 	}
 
 	public static <TArgs> Set<Dependency> getCachedInclusiveTransitiveDependencies(AlgorithmPart root, AlgorithmPart cacheKey, MethodDescriptor<TArgs, ?> descriptor, TArgs partialArgs) {
-		Map<MethodDescriptor, Set<Dependency> > cache = transitiveDependenciesCache.computeIfAbsent(cacheKey, (k) -> new HashMap());
+		Map<MethodDescriptor, Set<Dependency> > cache;
+		synchronized (transitiveDependenciesCache) {
+			cache = transitiveDependenciesCache.computeIfAbsent(cacheKey, (k) -> new ConcurrentHashMap());
+		}
 		Set<Dependency> exclusive = cache.computeIfAbsent(descriptor, (MethodDescriptor d) -> getTransitiveDependencies(root, d));
 		var result = new HashSet<Dependency>(exclusive);
 		if (partialArgs == null)
@@ -60,8 +64,8 @@ public abstract class MethodImplementation<TArgs, TRet> {
 	}
 
 	public static class Dependency<TArgs> {
-		protected static final Map<MethodDescriptor, Dependency> instances = new HashMap();
-		protected static final Map<MethodDescriptor, Dependency> multiplexedInstances = new HashMap();
+		protected static final Map<MethodDescriptor, Dependency> instances = new ConcurrentHashMap();
+		protected static final Map<MethodDescriptor, Dependency> multiplexedInstances = new ConcurrentHashMap();
 
 		public final MethodDescriptor<TArgs, ?> method;
 		public final TArgs partialArgs;

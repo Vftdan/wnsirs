@@ -1,10 +1,11 @@
 package io.github.vftdan.wnsirs.core;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 public class CompositeAlgorithmPart extends AlgorithmPart {
-	protected Map<MethodDescriptor<?, ?>, List<String>> possibleImplementationChildren = new HashMap<MethodDescriptor<?, ?>, List<String>>();
+	protected Map<MethodDescriptor<?, ?>, List<String>> possibleImplementationChildren = new ConcurrentHashMap<MethodDescriptor<?, ?>, List<String>>();
 	protected Map<String, AlgorithmPart> parts = new HashMap<String, AlgorithmPart>();
 	protected Set<MethodDescriptor<?, ?> > methodsCache = null;
 
