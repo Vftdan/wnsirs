@@ -18,7 +18,6 @@ public class Scheduler {
 
 	{
 		var numCores = Runtime.getRuntime().availableProcessors();
-		numCores = 1;
 		executor = new ThreadPoolExecutor(numCores, numCores, 0, TimeUnit.SECONDS, new ArrayBlockingQueue(8));
 
 		nextTasks = new PriorityQueue<Task<?> >((lhs, rhs) -> ((Double) lhs.startSimulationTime).compareTo(rhs.startSimulationTime));
