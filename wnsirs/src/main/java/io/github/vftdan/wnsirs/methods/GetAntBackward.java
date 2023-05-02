@@ -23,6 +23,7 @@ public class GetAntBackward extends GetSpecificValueMethodDescriptor<Boolean> {
 		{
 			dependencies = new Dependency<?>[] {Dependency.fromDescriptor(GetAnt.getInstance())};
 			valueName = "antBackward";
+			fallbackValue = false;
 		}
 	});
 }

@@ -20,8 +20,16 @@ public class GetPheromone extends GetSpecificValueMethodDescriptor<Double> {
 			return root.callMethod(root, GetEdge.getInstance(), null);
 		}
 
+		@Override
+		protected Double getFallbackValue(AlgorithmPart root) {
+			return root.callMethod(GetDefaultPheromone.getInstance());
+		}
+
 		{
-			dependencies = new Dependency<?>[] {Dependency.fromDescriptor(GetEdge.getInstance())};
+			dependencies = new Dependency<?>[] {
+				Dependency.fromDescriptor(GetEdge.getInstance()),
+				Dependency.fromDescriptor(GetDefaultPheromone.getInstance()),
+			};
 			valueName = "pheromone";
 		}
 	});

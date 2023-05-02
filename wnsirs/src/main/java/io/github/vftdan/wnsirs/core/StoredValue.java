@@ -72,6 +72,7 @@ public class StoredValue<T> {
 		public abstract static class AbstractImplementation<T> extends MethodImplementation<Void, T> {
 			protected GetSpecificValueMethodDescriptor<T> descriptor;
 			protected String valueName;
+			protected T fallbackValue = null;
 
 			@Override
 			public MethodDescriptor<Void, T> implementationFor() {
@@ -91,8 +92,15 @@ public class StoredValue<T> {
 			public T call(AlgorithmPart root, Void args) {
 				ValueStorage storage = getValueStorage(root);
 				if (storage == null)
-					return null;
-				return storage.getValue(valueName);
+					return getFallbackValue(root);
+				T value = storage.getValue(valueName);
+				if (value == null)
+					return getFallbackValue(root);
+				return value;
+			}
+
+			protected T getFallbackValue(AlgorithmPart root) {
+				return fallbackValue;
 			}
 
 			@Override

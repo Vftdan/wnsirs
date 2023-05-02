@@ -23,6 +23,7 @@ public class GetDefaultPheromone extends GetSpecificValueMethodDescriptor<Double
 		{
 			dependencies = new Dependency<?>[] {Dependency.fromDescriptor(GetEdge.getInstance())};
 			valueName = "defaultPheromone";
+			fallbackValue = 1.0;
 		}
 	});
 }
