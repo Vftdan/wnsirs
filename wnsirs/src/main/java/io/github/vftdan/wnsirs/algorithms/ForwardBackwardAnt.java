@@ -72,7 +72,7 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 				Dependency.fromDescriptor(GetNeighbors.getInstance()),
 				Dependency.fromDescriptor(GetNode.getInstance()),
 				Dependency.fromDescriptor(GetEdgeBetween.getInstance()),
-				// Dependency.fromDescriptor(SetConsideredEdges.getInstance()),
+				Dependency.fromDescriptor(SetConsideredEdges.getInstance()),
 				Dependency.fromDescriptor(GetScheduler.getInstance()),
 			};
 		}

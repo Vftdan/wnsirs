@@ -34,7 +34,7 @@ public class UpdateHistory extends MethodDescriptor<Node, Void> {
 
 		{
 			dependencies = new Dependency[] {
-				// Dependency.fromDescriptor(GetNodeHistory.getInstance()),
+				Dependency.fromDescriptor(GetNodeHistory.getInstance()),
 				Dependency.fromDescriptor(SetNodeHistory.getInstance()),
 			};
 		}

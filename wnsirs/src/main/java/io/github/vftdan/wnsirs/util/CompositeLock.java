@@ -5,7 +5,19 @@ import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
 
 public class CompositeLock implements Lock {
-	protected static final Comparator<? super Lock> comparator = new IdentityHashCodeComparator();
+	protected static final Comparator<? super Lock> comparator = new IdentityHashCodeComparator<Lock>() {
+		@Override
+		public int compare(Lock lhs, Lock rhs) {
+			// ReadLock s must be locked at the end => must be greater than all other locks
+			if (lhs instanceof ReentrantReadWriteLock.ReadLock && !(rhs instanceof ReentrantReadWriteLock.ReadLock)) {
+				return 1;
+			}
+			if (rhs instanceof ReentrantReadWriteLock.ReadLock && !(lhs instanceof ReentrantReadWriteLock.ReadLock)) {
+				return -1;
+			}
+			return super.compare(lhs, rhs);
+		}
+	};
 	protected SortedSet<Lock> locks;
 	protected Stack<Lock> locked;
 
