@@ -6,6 +6,7 @@ import java.util.List;
 import io.github.vftdan.wnsirs.core.*;
 import io.github.vftdan.wnsirs.core.Context.GetScheduler;
 import io.github.vftdan.wnsirs.methods.*;
+import io.github.vftdan.wnsirs.util.BareLinkedList;
 
 import javafx.util.Pair;
 
@@ -14,6 +15,9 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 		defaultRole = "generalAntBehavior";
 		registerImplementation(new LaunchAntImplementation());
 		registerImplementation(new TransitionAntImplementation());
+		registerImplementation(new AntArrivedImplementation());
+		registerImplementation(new UpdateHistoryImplementation());
+		registerImplementation(new IncreasePheromoneImplementation());
 	}
 
 	public static class LaunchAntImplementation extends LaunchAnt.Implementation {
@@ -46,6 +50,7 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 				var node = root.callMethod(GetPreviousNode.getInstance(), null);
 				if (node == null) {
 					root.callMethod(DestroyAnt.Emitter.getInstance(), null);
+					root.callMethod(EvaporatePheromones.getInstance(), null);
 				} else {
 					root.callMethod(SendAntTo.getInstance(), node);
 				}
@@ -68,12 +73,87 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 				Dependency.fromDescriptor(IncreasePheromone.Emitter.getInstance()),
 				Dependency.fromDescriptor(GetPreviousNode.getInstance()),
 				Dependency.fromDescriptor(DestroyAnt.Emitter.getInstance()),
+				Dependency.fromDescriptor(EvaporatePheromones.getInstance()),
 				Dependency.fromDescriptor(SendAntTo.getInstance()),
 				Dependency.fromDescriptor(GetNeighbors.getInstance()),
 				Dependency.fromDescriptor(GetNode.getInstance()),
 				Dependency.fromDescriptor(GetEdgeBetween.getInstance()),
 				Dependency.fromDescriptor(SetConsideredEdges.getInstance()),
 				Dependency.fromDescriptor(GetScheduler.getInstance()),
+			};
+		}
+	}
+
+	public static class AntArrivedImplementation extends MethodImplementation<Void, Void> {
+		@Override
+		public MethodDescriptor<? extends Void, ? super Void> implementationFor() {
+			return AntArrived.getInstance();
+		}
+
+		@Override
+		public Void call(AlgorithmPart root, Void args) {
+			root.callMethod(GetScheduler.getInstance()).scheduleTask(0, (Context) root, WaitEvaluateAndSendBack.getInstance(), null);
+			return null;
+		}
+
+		{
+			dependencies = new Dependency[] {
+				Dependency.fromDescriptor(GetScheduler.getInstance()),
+			};
+		}
+	}
+
+	public static class UpdateHistoryImplementation extends MethodImplementation<Node, Void> {
+		@Override
+		public MethodDescriptor<? extends Node, ? super Void> implementationFor() {
+			return UpdateHistory.getInstance();
+		}
+
+		@Override
+		public Void call(AlgorithmPart root, Node args) {
+			var history = root.callMethod(GetNodeHistory.getInstance());
+			if (root.callMethod(GetAntBackward.getInstance())) {
+				root.callMethod(SetNodeHistory.getInstance(), history.next);
+				var ctx = (Context) root;  // TODO consider moving to another/separate method
+				var edge = root.callMethod(GetEdgeBetween.getInstance(), new Pair<Node, Node>(ctx.callMethod(GetNextNode.getInstance()), root.callMethod(GetNode.getInstance())));
+				ctx.setPart(edge);
+			} else {
+				root.callMethod(SetNodeHistory.getInstance(), new BareLinkedList<Node>(args, history));
+			}
+			return null;
+		}
+
+		{
+			dependencies = new Dependency[] {
+				Dependency.fromDescriptor(GetNodeHistory.getInstance()),
+				Dependency.fromDescriptor(SetNodeHistory.getInstance()),
+				Dependency.fromDescriptor(GetAntBackward.getInstance()),
+			};
+		}
+	}
+
+	public static class IncreasePheromoneImplementation extends MethodImplementation<Void, Void> {
+		@Override
+		public MethodDescriptor<? extends Void, ? super Void> implementationFor() {
+			return IncreasePheromone.getInstance();
+		}
+
+		@Override
+		public Void call(AlgorithmPart root, Void args) {
+			double pheromone = root.callMethod(GetPheromone.getInstance());
+			var history = root.callMethod(GetTotalNodeHistory.getInstance());
+			double amount = root.callMethod(GetAntFitness.getInstance());
+			if (history != null)
+				amount /= history.length;
+			pheromone += amount;
+			root.callMethod(SetPheromone.getInstance(), pheromone);
+			return null;
+		}
+
+		{
+			dependencies = new Dependency[] {
+				Dependency.fromDescriptor(GetPheromone.getInstance()),
+				Dependency.fromDescriptor(SetPheromone.getInstance()),
 			};
 		}
 	}
