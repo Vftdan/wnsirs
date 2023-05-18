@@ -1,5 +1,7 @@
 package io.github.vftdan.wnsirs.methods;
 
+import javafx.util.Pair;
+
 import io.github.vftdan.wnsirs.core.*;
 import io.github.vftdan.wnsirs.core.Context.GetScheduler;
 
@@ -36,6 +38,8 @@ public class SendAntTo extends MethodDescriptor<Node, Void> {
 				ctx.callMethod(AntCloned.Emitter.getInstance(), null);
 			}
 			ctx.callMethod(SetNextNode.getInstance(), args);
+			var edge = root.callMethod(GetEdgeBetween.getInstance(), new Pair<Node, Node>(root.callMethod(GetNode.getInstance()), args));
+			ctx.setPart(edge);
 			double delay = ctx.callMethod(GetTransmissionDelay.getInstance(), null);
 			// clone the context
 			var newCtx = ctx.clone();
@@ -46,6 +50,7 @@ public class SendAntTo extends MethodDescriptor<Node, Void> {
 
 		{
 			dependencies = new Dependency[] {
+				Dependency.fromDescriptor(GetNode.getInstance()),
 				Dependency.fromDescriptor(GetNextNode.getInstance()),
 				Dependency.fromDescriptor(GetAnt.getInstance()),
 				Dependency.fromDescriptor(AntCloned.Emitter.getInstance()),
