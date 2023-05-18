@@ -20,8 +20,18 @@ public class SetPheromone extends SetSpecificValueMethodDescriptor<Double> {
 			return root.callMethod(root, GetEdge.getInstance(), null);
 		}
 
+		@Override
+		public Boolean call(AlgorithmPart root, Double args) {
+			if (!super.call(root, args))
+				return root.callMethod(SetDefaultPheromone.getInstance(), args);
+			return true;
+		}
+
 		{
-			dependencies = new Dependency<?>[] {Dependency.fromDescriptor(GetEdge.getInstance())};
+			dependencies = new Dependency<?>[] {
+				Dependency.fromDescriptor(GetEdge.getInstance()),
+				Dependency.fromDescriptor(SetDefaultPheromone.getInstance()),
+			};
 			valueName = "pheromone";
 		}
 	});
