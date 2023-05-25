@@ -47,10 +47,10 @@ public class EvaluateAnt extends MethodDescriptor<Void, Void> {
 					ctx.delPart("edge");
 				}
 			}
-			double fitness = 1 / totalDist;  // by default
-			if (!Double.isFinite(fitness))
-				fitness = Double.MAX_VALUE;
-			root.callMethod(SetAntFitness.getInstance(), fitness);
+			double deltaPheromone = root.callMethod(GetPheromoneStrength.getInstance()) / totalDist;
+			if (!Double.isFinite(deltaPheromone))
+				deltaPheromone = Double.MAX_VALUE;
+			root.callMethod(SetAntDeltaPheromone.getInstance(), deltaPheromone);
 			return null;
 		}
 

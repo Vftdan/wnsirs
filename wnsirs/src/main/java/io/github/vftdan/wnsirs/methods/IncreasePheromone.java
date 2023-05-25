@@ -43,6 +43,25 @@ public class IncreasePheromone extends HandlerMethodDescriptor<Void, Void> {
 			public io.github.vftdan.wnsirs.core.HandlerMethodDescriptor.Emitter<? extends Void, ? super Void, ? super Void, ? extends Void> implementationFor() {
 				return Emitter.getInstance();
 			}
+
+			@Override
+			public Void call(AlgorithmPart root, Void args) {
+				super.call(root, args);
+				double pheromone = root.callMethod(GetPheromone.getInstance());
+				pheromone += root.callMethod(GetAntDeltaPheromone.getInstance());
+				root.callMethod(SetPheromone.getInstance(), pheromone);
+				return null;
+			}
+
+			{
+				var oldDependencies = dependencies;
+				dependencies = new Dependency[oldDependencies.length + 3];
+				for (int i = 0; i < oldDependencies.length; ++i)
+					dependencies[i] = oldDependencies[i];
+				dependencies[oldDependencies.length + 0] = Dependency.fromDescriptor(GetPheromone.getInstance());
+				dependencies[oldDependencies.length + 1] = Dependency.fromDescriptor(GetAntDeltaPheromone.getInstance());
+				dependencies[oldDependencies.length + 2] = Dependency.fromDescriptor(SetPheromone.getInstance());
+			}
 		}
 	}
 }
