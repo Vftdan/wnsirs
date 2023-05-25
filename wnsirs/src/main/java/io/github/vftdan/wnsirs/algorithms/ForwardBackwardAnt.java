@@ -20,6 +20,11 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 		registerImplementation(new IncreasePheromoneImplementation());
 	}
 
+	@Override
+	public String toString() {
+		return "Forward and backward ant movement";
+	}
+
 	public static class LaunchAntImplementation extends LaunchAnt.Implementation {
 		@Override
 		protected Ant createAnt(Context ctx) {
