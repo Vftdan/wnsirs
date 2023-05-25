@@ -11,16 +11,25 @@ public class Scheduler {
 	Set<Task<?> > runningTasks = new HashSet();
 	double simulationTime = 0.0;
 	double minimalDelay = 0.01;
+	double realDelayScale = 100;
 	Lock schedulerLock = new ReentrantLock();
 	Condition timeAdvanced = schedulerLock.newCondition();
 	Condition lockAcquired = schedulerLock.newCondition();
 	ExecutorService executor;
+	volatile boolean interrupted = false;
 
 	{
+		reset();
+	}
+
+	public void reset() {
 		var numCores = Runtime.getRuntime().availableProcessors();
 		executor = new ThreadPoolExecutor(numCores, numCores, 0, TimeUnit.SECONDS, new ArrayBlockingQueue(8));
 
 		nextTasks = new PriorityQueue<Task<?> >((lhs, rhs) -> ((Double) lhs.startSimulationTime).compareTo(rhs.startSimulationTime));
+		simulationTime = 0;
+		interrupted = false;
+		runningTasks.clear();
 	}
 
 	public <TArgs> void scheduleTask(double delay, Context context, MethodDescriptor<TArgs, ?> method, TArgs args) {
@@ -91,7 +100,7 @@ public class Scheduler {
 	public void schedulingLoop() throws InterruptedException {
 		boolean running = true;
 mainLoop:
-		while (running) {
+		while (running & !interrupted) {
 			schedulerLock.lock();
 			try {
 				while (nextTasks.isEmpty()) {
@@ -131,6 +140,13 @@ mainLoop:
 			}
 			if (!nextTasks.isEmpty())
 				time = Math.min(time, nextTasks.peek().startSimulationTime);
+			try {
+				if (Double.isFinite(time) && realDelayScale > 0)
+					Thread.sleep((long)((time - simulationTime) * realDelayScale));
+			} catch (InterruptedException e) {
+				interrupted = true;
+				e.printStackTrace();
+			}
 			simulationTime = time;
 			timeAdvanced.signalAll();
 		} finally {
