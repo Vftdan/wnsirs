@@ -16,7 +16,7 @@
       </dependency>
       <dependency>
         <groupId>org.openjfx</groupId>
-        <artifactId>javafx-base</artifactId>
+        <artifactId>javafx-controls</artifactId>
         <version>19</version>
       </dependency>
   </dependencies>
@@ -32,6 +32,14 @@
           <excludes>
             <exclude>**/*.template.java</exclude>
           </excludes>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <configuration>
+          <mainClass>io.github.vftdan.wnsirs.App</mainClass>
         </configuration>
       </plugin>
       <plugin>
