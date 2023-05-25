@@ -50,7 +50,6 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 				var node = root.callMethod(GetPreviousNode.getInstance(), null);
 				if (node == null) {
 					root.callMethod(DestroyAnt.Emitter.getInstance(), null);
-					root.callMethod(EvaporatePheromones.getInstance(), null);
 				} else {
 					root.callMethod(SendAntTo.getInstance(), node);
 				}
@@ -73,7 +72,6 @@ public class ForwardBackwardAnt extends SimpleAlgorithmPart {
 				Dependency.fromDescriptor(IncreasePheromone.Emitter.getInstance()),
 				Dependency.fromDescriptor(GetPreviousNode.getInstance()),
 				Dependency.fromDescriptor(DestroyAnt.Emitter.getInstance()),
-				Dependency.fromDescriptor(EvaporatePheromones.getInstance()),
 				Dependency.fromDescriptor(SendAntTo.getInstance()),
 				Dependency.fromDescriptor(GetNeighbors.getInstance()),
 				Dependency.fromDescriptor(GetNode.getInstance()),

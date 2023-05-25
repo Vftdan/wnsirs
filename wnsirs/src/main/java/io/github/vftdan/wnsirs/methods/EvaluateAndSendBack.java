@@ -29,6 +29,7 @@ public class EvaluateAndSendBack extends MethodDescriptor<Void, Void> {
 			root.callMethod(SetTotalNodeHistory.getInstance(), root.callMethod(GetNodeHistory.getInstance()));
 			root.callMethod(EvaluateAnt.getInstance());
 			root.callMethod(SetAntBackward.getInstance(), true);
+			root.callMethod(EvaporatePheromones.getInstance(), null);
 			root.callMethod(TransitionAnt.getInstance());
 			return null;
 		}
@@ -39,6 +40,7 @@ public class EvaluateAndSendBack extends MethodDescriptor<Void, Void> {
 				Dependency.fromDescriptor(GetNodeHistory.getInstance()),
 				Dependency.fromDescriptor(EvaluateAnt.getInstance()),
 				Dependency.fromDescriptor(SetAntBackward.getInstance()),
+				Dependency.fromDescriptor(EvaporatePheromones.getInstance()),
 				Dependency.fromDescriptor(TransitionAnt.getInstance()),
 			};
 		}
