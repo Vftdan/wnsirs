@@ -28,6 +28,7 @@ public class GetAntFitness extends GetSpecificValueMethodDescriptor<Double> {
 		{
 			dependencies = new Dependency<?>[] {
 				Dependency.fromDescriptor(GetEdge.getInstance()),
+				Dependency.fromDescriptor(GetAntDeltaPheromone.getInstance()),
 			};
 			valueName = "antFitness";
 		}

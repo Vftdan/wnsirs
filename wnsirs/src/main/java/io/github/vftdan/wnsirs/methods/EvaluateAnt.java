@@ -28,36 +28,22 @@ public class EvaluateAnt extends MethodDescriptor<Void, Void> {
 
 		@Override
 		public Void call(AlgorithmPart root, Void args) {
-			// TODO separate function for the list of history edges
-			var list = root.callMethod(GetNodeHistory.getInstance());
-			Node u = null;
-			var ctx = (Context) root;
-			double totalDist = 0;
-			for (var listNode: list) {
-				Node v = listNode.value;
-				try {
-					if (u == null || v == null)
-						continue;
-					var edge = root.callMethod(GetEdgeBetween.getInstance(), new Pair<Node, Node>(u, v));
-					ctx.setPart(edge);
-					double dist = root.callMethod(GetEdgeLength.getInstance());
-					totalDist += dist;
-				} finally {
-					u = v;
-					ctx.delPart("edge");
-				}
-			}
-			double deltaPheromone = root.callMethod(GetPheromoneStrength.getInstance()) / totalDist;
-			if (!Double.isFinite(deltaPheromone))
-				deltaPheromone = Double.MAX_VALUE;
-			root.callMethod(SetAntDeltaPheromone.getInstance(), deltaPheromone);
+			var visited = root.callMethod(GetNodeHistory.getInstance());
+			var total = root.callMethod(GetNetwork.getInstance()).getNodes();
+			// src: T. Camilo, C. Carreto, J. S. Silva, and F. Boavida, "An energy-efficient ant-based routing algorithm for wireless sensor networks"; eq. 2
+			// Seems to prefer ants that visited more nodes, may be a mistake
+			root.callMethod(SetAntDeltaPheromone.getInstance(), root.callMethod(GetPheromoneStrength.getInstance()) / (
+				Math.max(1, total.size() - visited.length)
+			));
 			return null;
 		}
 
 		{
 			dependencies = new Dependency[] {
 				Dependency.fromDescriptor(GetNodeHistory.getInstance()),
-				Dependency.fromDescriptor(SetAntFitness.getInstance()),
+				Dependency.fromDescriptor(GetNetwork.getInstance()),
+				Dependency.fromDescriptor(SetAntDeltaPheromone.getInstance()),
+				Dependency.fromDescriptor(GetPheromoneStrength.getInstance()),
 			};
 		}
 	};
