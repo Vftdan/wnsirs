@@ -29,6 +29,7 @@ public class MainUi extends Application {
 	Map<String, Supplier<ParameterChooser> > parameterFactories = new HashMap<String, Supplier<ParameterChooser> >() {{
 		put("General ant behavior", () -> new GeneralAntBehaviorParameterChooser());
 		put("Delta pheromone formula", () -> new DeltaPheromoneParameterChooser());
+		put("Heuristic formula", () -> new HeuristicParameterChooser());
 	}};
 	Thread schedulingThread = null;
 	Thread spawnThread = null;
