@@ -50,8 +50,6 @@ public class MainUi extends Application {
 		GridPane.setVgrow(parametersWidget, Priority.ALWAYS);
 		addParameterButton.setOnAction((e) -> {addParameter();}); 
 		runSimulationButton.setOnAction((e) -> {runSimulation();}); 
-		networkVisualization.getWorldTransformation().appendScale(80, 80);
-		networkVisualization.getWorldTransformation().appendTranslation(.5, .5);
 	}
 
 	public void addParameter() {

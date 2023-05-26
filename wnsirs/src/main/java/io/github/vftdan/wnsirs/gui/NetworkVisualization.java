@@ -56,6 +56,7 @@ public class NetworkVisualization {
 
 	public void redraw() {
 		dirty = false;
+		updateWorldTransformation();
 		var ctx = getContext();
 		var savedTransform = ctx.getTransform();
 		ctx.setTransform(new Affine());
@@ -64,6 +65,57 @@ public class NetworkVisualization {
 		for (var el: elements) {
 			el.draw(this, ctx);
 		}
+	}
+
+	protected void updateWorldTransformation() {
+		double minX = Double.POSITIVE_INFINITY,
+		       minY = Double.POSITIVE_INFINITY,
+		       maxX = Double.NEGATIVE_INFINITY,
+		       maxY = Double.NEGATIVE_INFINITY;
+		for (var el: elements) {
+			var x = el.getX();
+			var y = el.getY();
+			if (Double.isNaN(x) || Double.isNaN(y))
+				continue;
+			if (minX > x)
+				minX = x;
+			if (minY > y)
+				minY = y;
+			if (maxX < x)
+				maxX = x;
+			if (maxY < y)
+				maxY = y;
+		}
+		double clientPadding = 40;
+		double clientWidth = canvas.getWidth();
+		double clientHeight = canvas.getHeight();
+		double clientPaddedWidth = clientWidth - 2 * clientPadding;
+		if (clientPaddedWidth - clientPadding < 0)
+			clientPaddedWidth = clientWidth;
+		double clientPaddedHeight = clientHeight - 2 * clientPadding;
+		if (clientPaddedHeight - clientPadding < 0)
+			clientPaddedHeight = clientHeight;
+		double xScale = clientPaddedWidth / (maxX - minX);
+		double yScale = clientPaddedHeight / (maxY - minY);
+		boolean xPositiveFinite = xScale > 0 && Double.isFinite(xScale);
+		boolean yPositiveFinite = yScale > 0 && Double.isFinite(yScale);
+		if (!xPositiveFinite && !yPositiveFinite) {
+			xScale = 1;
+			yScale = 1;
+		} else if (!xPositiveFinite) {
+			xScale = yScale;
+		} else if (!yPositiveFinite) {
+			yScale = xScale;
+		}
+		double scale = Math.min(xScale, yScale);
+		if (!Double.isFinite(minX))
+			minX = 0;
+		if (!Double.isFinite(minY))
+			minY = 0;
+		worldTransformation.setToIdentity();
+		worldTransformation.appendTranslation((clientWidth - clientPaddedWidth) / 2, (clientWidth - clientPaddedWidth) / 2);
+		worldTransformation.appendScale(scale, scale);
+		worldTransformation.appendTranslation(-minX, -minY);
 	}
 
 	public void addElement(Element<?> element) {
