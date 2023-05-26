@@ -24,8 +24,8 @@ public class MainUi extends Application {
 	Button runSimulationButton = new Button("Run simulation");
 	ParameterList parameters = new ParameterList();
 	Map<String, Supplier<ParameterChooser> > parameterFactories = new HashMap<String, Supplier<ParameterChooser> >() {{
-		put("generalAntBehavior", () -> new GeneralAntBehaviorParameterChooser());
-		put("deltaPheromoneFormula", () -> new DeltaPheromoneParameterChooser());
+		put("General ant behavior", () -> new GeneralAntBehaviorParameterChooser());
+		put("Delta pheromone formula", () -> new DeltaPheromoneParameterChooser());
 	}};
 	Thread schedulingThread = null;
 	Thread spawnThread = null;

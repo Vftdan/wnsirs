@@ -27,15 +27,15 @@ public class ParameterList {
 	}
 
 	public void addFrom(Map<String, Supplier<ParameterChooser> > factories) {
-		var entries = factories.entrySet();
-		if (entries.isEmpty())
+		var keys = factories.keySet();
+		if (keys.isEmpty())
 			return;
-		var dialog = new ChoiceDialog<Map.Entry<String, Supplier<ParameterChooser> > >(entries.iterator().next(), entries);
+		var dialog = new ChoiceDialog<String>(keys.iterator().next(), keys);
 		dialog.setTitle("Add parameter");
 		var selection = dialog.showAndWait();
 		if (!selection.isPresent())
 			return;
-		choosers.add(selection.get().getValue().get());
+		choosers.add(factories.get(selection.get()).get());
 	}
 
 	public Iterable<Context> applyAll(Context context) {
