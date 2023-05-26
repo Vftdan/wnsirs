@@ -26,7 +26,12 @@ public class Scheduler {
 		var numCores = Runtime.getRuntime().availableProcessors();
 		executor = new ThreadPoolExecutor(numCores, numCores, 0, TimeUnit.SECONDS, new ArrayBlockingQueue(8));
 
-		nextTasks = new PriorityQueue<Task<?> >((lhs, rhs) -> ((Double) lhs.startSimulationTime).compareTo(rhs.startSimulationTime));
+		nextTasks = new PriorityQueue<Task<?> >((lhs, rhs) -> {
+			var r = ((Double) lhs.startSimulationTime).compareTo(rhs.startSimulationTime);
+			if (r == 0)
+				return ((Long) lhs.context.seed).compareTo(rhs.context.seed);
+			return r;
+		});
 		simulationTime = 0;
 		interrupted = false;
 		runningTasks.clear();
