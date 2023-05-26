@@ -37,6 +37,10 @@ public class Context extends CompositeAlgorithmPart implements Cloneable {
 		return other;
 	}
 
+	public void resetClones() {
+		numClones = 0;
+	}
+
 	public void init() {
 		Double time = simulationTime;
 		seed ^= time.hashCode();

@@ -40,6 +40,7 @@ public class ParameterList {
 
 	public Iterable<Context> applyAll(Context context) {
 		return applyAll(() -> {
+			context.resetClones();
 			var newCtx = context.clone();
 			var oldAlgo = newCtx.getPart("algorithm");
 			var algo = new Algorithm();
