@@ -3,6 +3,7 @@ package io.github.vftdan.wnsirs.core;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
+import java.util.function.Consumer;
 
 import io.github.vftdan.wnsirs.util.*;
 
@@ -17,6 +18,7 @@ public class Scheduler {
 	Condition lockAcquired = schedulerLock.newCondition();
 	ExecutorService executor;
 	volatile boolean interrupted = false;
+	Consumer<String> userMessageHandler = null;
 
 	{
 		reset();
@@ -35,6 +37,17 @@ public class Scheduler {
 		simulationTime = 0;
 		interrupted = false;
 		runningTasks.clear();
+	}
+
+	public void setUserMessageHadler(Consumer<String> userMessageHandler) {
+		this.userMessageHandler = userMessageHandler;
+	}
+
+	public void showUserMessage(String msg) {
+		var handler = userMessageHandler;
+		if (handler == null)
+			return;
+		handler.accept(msg);
 	}
 
 	public <TArgs> void scheduleTask(double delay, Context context, MethodDescriptor<TArgs, ?> method, TArgs args) {
@@ -57,6 +70,7 @@ public class Scheduler {
 		TArgs args;
 		volatile boolean lockAcquired = false;
 		volatile boolean finished = false;
+		volatile boolean failed = false;
 
 		public Task(Scheduler scheduler, double startSimulationTime, Context context, MethodDescriptor<TArgs, ?> method, TArgs args) {
 			this.scheduler = scheduler;
@@ -95,10 +109,12 @@ public class Scheduler {
 				}
 			} catch (Throwable e) {
 				e.printStackTrace();
+				failed = true;
+				scheduler.showUserMessage(e + "");
 			} finally {
 				finished = true;
+				this.scheduler.taskFinished(this);
 			}
-			this.scheduler.taskFinished(this);
 		}
 	}
 
@@ -138,6 +154,10 @@ mainLoop:
 		schedulerLock.lock();
 		try {
 			runningTasks.remove(task);
+			if (task.failed) {
+				interrupted = true;
+				return;
+			}
 			// update simulationTime
 			double time = Double.POSITIVE_INFINITY;
 			for (var otherTask: runningTasks) {

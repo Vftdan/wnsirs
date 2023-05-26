@@ -114,7 +114,13 @@ public abstract class MethodImplementation<TArgs, TRet> {
 			}
 			MethodImplementation<TArgs, ?> imp = root.getMethodImplementation(method);
 			if (imp == null) {
-				System.err.println("Implementation of " + method + " is null");
+				var msg = "Implementation of " + method + " is null";
+				if (root instanceof Context) {
+					var scheduler = ((Context) root).getScheduler();
+					if (scheduler != null)
+						scheduler.showUserMessage(msg);
+				}
+				System.err.println(msg);
 			}
 			return imp.getLocks(root, partialArgs);
 		}

@@ -21,6 +21,7 @@ import javafx.stage.*;
 public class MainUi extends Application {
 	NetworkVisualization networkVisualization = new NetworkVisualization(null);
 	Pane canvasPane = new Pane();
+	TextArea infoArea = new TextArea();
 	GridPane mainPane = new GridPane();
 	Button addParameterButton = new Button("Add parameter");
 	Button runSimulationButton = new Button("Run simulation");
@@ -43,6 +44,7 @@ public class MainUi extends Application {
 		mainPane.setVgap(8);
 		mainPane.setPadding(new Insets(8, 8, 8, 8));
 		mainPane.add(canvasPane, 1, 0, 1, 3);
+		mainPane.add(infoArea, 2, 0, 1, 3);
 		mainPane.add(parametersWidget, 0, 0);
 		mainPane.add(addParameterButton, 0, 1);
 		mainPane.add(runSimulationButton, 0, 2);
@@ -50,10 +52,17 @@ public class MainUi extends Application {
 		GridPane.setVgrow(parametersWidget, Priority.ALWAYS);
 		addParameterButton.setOnAction((e) -> {addParameter();}); 
 		runSimulationButton.setOnAction((e) -> {runSimulation();}); 
+		infoArea.setEditable(false);
 	}
 
 	public void addParameter() {
 		parameters.addFrom(parameterFactories);
+	}
+
+	public void showUserMessage(String s) {
+		synchronized(infoArea) {
+			infoArea.appendText(s + "\n\n");
+		}
 	}
 
 	public void runSimulation() {
@@ -63,13 +72,18 @@ public class MainUi extends Application {
 			try {
 				spawnThread.join(5000);
 			} catch (InterruptedException e) {
-				throw new RuntimeException(e);
+				showUserMessage("Interrupted");
+				return;
 			}
 			spawnThread = null;
 		}
 		spawnThread = new Thread(() -> {
+			showUserMessage("Start simulation group");
 			for (var ctx: parameters.applyAll(() -> {
 				scheduler = new Scheduler();
+				scheduler.setUserMessageHadler((s) -> {
+					showUserMessage(s);
+				});
 				var ctx = new Context(scheduler);
 				var part = new SimpleAlgorithmPart() {{
 					defaultRole = "demoInitialization";
@@ -197,6 +211,7 @@ public class MainUi extends Application {
 			})) {
 				networkVisualization.clearElements();
 				scheduler.reset();
+				showUserMessage("Start simulation instance");
 				scheduler.scheduleTask(0, ctx, InitializeSimulation.getInstance(), null);
 				if (schedulingThread != null) {
 					if (schedulingThread.isAlive())
@@ -219,10 +234,12 @@ public class MainUi extends Application {
 				try {
 					schedulingThread.join();
 				} catch (InterruptedException e) {
-					throw new RuntimeException(e);
+					showUserMessage("Interrupted");
 				}
 				scheduler.terminate();
+				showUserMessage("End simulation instance");
 			}
+			showUserMessage("End simulation group");
 		});
 		spawnThread.start();
 	}
