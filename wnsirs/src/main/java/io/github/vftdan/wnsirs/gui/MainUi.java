@@ -161,7 +161,6 @@ public class MainUi extends Application {
 							var visElement = new NetworkVisualization.Element<Edge>(edge) {
 								@Override
 								protected void draw(NetworkVisualization visualization, GraphicsContext ctx) {
-									ctx.setStroke(new Color(0, 0, 0, 0.1));
 									var method = GetPheromone.getInstance();
 									double pheromone;
 									var lock = new CompositeLock(edge.getMethodImplementation(method).getLocks(edge, null));
@@ -171,8 +170,10 @@ public class MainUi extends Application {
 									} finally {
 										lock.unlock();
 									}
-									var lineWidth = 1 + Math.log1p(pheromone) * 2;
+									var lineWidth = .5 + Math.log1p(pheromone) * 2;
+									var opacity = Math.min(1, 0.05 + Math.log1p(pheromone) * .5);
 									ctx.setLineWidth(lineWidth);
+									ctx.setStroke(new Color(0, 0, 0, opacity));
 									var screenPosStart = visualization.getWorldTransformation().transform(getX(), getY());
 									var screenPosEnd = visualization.getWorldTransformation().transform(getEndX(), getEndY());
 									ctx.strokeLine(screenPosStart.getX(), screenPosStart.getY(), screenPosEnd.getX(), screenPosEnd.getY());
