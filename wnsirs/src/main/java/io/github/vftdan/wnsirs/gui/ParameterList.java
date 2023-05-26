@@ -24,6 +24,7 @@ public class ParameterList {
 			return (ListCell<ParameterChooser<?> >) (ListCell) cell;
 		});
 		listView.setEditable(true);
+		listView.setPrefWidth(320);
 	}
 
 	public void addFrom(Map<String, Supplier<ParameterChooser> > factories) {

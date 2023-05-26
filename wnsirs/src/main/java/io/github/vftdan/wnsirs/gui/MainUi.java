@@ -10,6 +10,7 @@ import java.util.function.*;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.*;
@@ -19,6 +20,7 @@ import javafx.stage.*;
 
 public class MainUi extends Application {
 	NetworkVisualization networkVisualization = new NetworkVisualization(null);
+	Pane canvasPane = new Pane();
 	GridPane mainPane = new GridPane();
 	Button addParameterButton = new Button("Add parameter");
 	Button runSimulationButton = new Button("Run simulation");
@@ -32,10 +34,20 @@ public class MainUi extends Application {
 	Scheduler scheduler;
 
 	{
-		mainPane.add(networkVisualization.getCanvas(), 1, 0, 1, 3);
-		mainPane.add(parameters.getUiNode(), 0, 0);
+		var canvas = networkVisualization.getCanvas();
+		var parametersWidget = parameters.getUiNode();
+		canvasPane.getChildren().add(canvas);
+		canvas.widthProperty().bind(canvasPane.widthProperty());
+		canvas.heightProperty().bind(canvasPane.heightProperty());
+		mainPane.setHgap(8);
+		mainPane.setVgap(8);
+		mainPane.setPadding(new Insets(8, 8, 8, 8));
+		mainPane.add(canvasPane, 1, 0, 1, 3);
+		mainPane.add(parametersWidget, 0, 0);
 		mainPane.add(addParameterButton, 0, 1);
 		mainPane.add(runSimulationButton, 0, 2);
+		GridPane.setHgrow(canvasPane, Priority.ALWAYS);
+		GridPane.setVgrow(parametersWidget, Priority.ALWAYS);
 		addParameterButton.setOnAction((e) -> {addParameter();}); 
 		runSimulationButton.setOnAction((e) -> {runSimulation();}); 
 		networkVisualization.getWorldTransformation().appendScale(80, 80);
@@ -219,9 +231,7 @@ public class MainUi extends Application {
 	@Override
 	public void start(Stage stage) throws Exception {
 		stage.setTitle("WNSIRS");
-		var root = new Group();
-		root.getChildren().add(mainPane);
-		var scene = new Scene(root);
+		var scene = new Scene(mainPane);
 		stage.setScene(scene);
 		stage.show();
 		ChangeListener<Object> listener = (o, oldValue, newValue) -> {networkVisualization.redraw();};

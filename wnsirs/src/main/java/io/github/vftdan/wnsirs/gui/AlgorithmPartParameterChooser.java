@@ -5,6 +5,7 @@ import java.util.*;
 import io.github.vftdan.wnsirs.algorithms.ForwardBackwardAnt;
 import io.github.vftdan.wnsirs.core.*;
 import io.github.vftdan.wnsirs.methods.TransitionAnt;
+import javafx.beans.InvalidationListener;
 import javafx.collections.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -23,6 +24,8 @@ public class AlgorithmPartParameterChooser extends ParameterChooser<AlgorithmPar
 	{
 		listView.setPrefHeight(12);
 		uiNode = layout;
+		layout.setHgap(8);
+		layout.setVgap(8);
 		layout.add(title, 0, 0);
 		layout.add(listView, 0, 1);
 		layout.add(addButton, 0, 2);
@@ -33,21 +36,30 @@ public class AlgorithmPartParameterChooser extends ParameterChooser<AlgorithmPar
 		listView.setCellFactory((view) -> {
 			var cell = new AlgorithmPartCell(potentialValues);
 			cells.add(cell);
-			cell.heightProperty().addListener((o) -> {
+			InvalidationListener listener = (o) -> {
 				updateHeight();
-			});
+			};
+			cell.heightProperty().addListener(listener);
+			cell.itemProperty().addListener(listener);
 			return cell;
 		});
 		listView.setEditable(true);
 	}
 
 	protected void updateHeight() {
-		double height = 12;
+		double height = 16;
+		double addIfAllEmpty = 0;
+		boolean allEmpty = true;
 		for (var c: cells) {
+			if (c.getItem() == null) {
+				addIfAllEmpty = c.getHeight();
+				continue;
+			}
+			allEmpty = false;
 			height += c.getHeight();
-			if (c.getItem() == null)
-				break;
 		}
+		if (allEmpty)
+			height += addIfAllEmpty;
 		listView.setPrefHeight(height);
 	}
 
