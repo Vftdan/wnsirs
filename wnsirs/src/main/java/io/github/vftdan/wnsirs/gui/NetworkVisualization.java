@@ -82,6 +82,11 @@ public class NetworkVisualization {
 		dirty = true;
 	}
 
+	public void clearElements() {
+		for (var el: elements)
+			removeElement(el);
+	}
+
 	public static abstract class Element<T> implements Comparable<Element<T> > {
 		private Set<NetworkVisualization> subscribers = Collections.newSetFromMap(new WeakHashMap<NetworkVisualization, Boolean>());
 

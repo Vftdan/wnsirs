@@ -197,6 +197,7 @@ public class MainUi extends Application {
 				ctx.callMethod(SetDefaultPheromone.getInstance(), 1.0);
 				return ctx;
 			})) {
+				networkVisualization.clearElements();
 				scheduler.reset();
 				scheduler.scheduleTask(0, ctx, InitializeSimulation.getInstance(), null);
 				if (schedulingThread != null) {
