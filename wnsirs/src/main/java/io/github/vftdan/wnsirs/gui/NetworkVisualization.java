@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import javafx.animation.AnimationTimer;
+import javafx.beans.InvalidationListener;
 import javafx.scene.canvas.*;
 import javafx.scene.transform.Affine;
 
@@ -23,12 +24,15 @@ public class NetworkVisualization {
 
 	public NetworkVisualization(Canvas canvas) {
 		if (canvas == null)
-			canvas = new Canvas(480, 320);
+			canvas = new ResizeableCanvas(480, 320);
 		this.canvas = canvas;
+		InvalidationListener listener = (o) -> {dirty = true;};
+		canvas.widthProperty().addListener(listener);
+		canvas.heightProperty().addListener(listener);
 	}
 
 	public NetworkVisualization(int width, int height) {
-		this(new Canvas(width, height));
+		this(new ResizeableCanvas(width, height));
 	}
 
 	public Canvas getCanvas() {
@@ -181,5 +185,20 @@ public class NetworkVisualization {
 		}
 
 		protected abstract void draw(NetworkVisualization visualization, GraphicsContext ctx);
+	}
+
+	public static class ResizeableCanvas extends Canvas {
+		public ResizeableCanvas(double w, double h) {
+			super(w, h);
+		}
+
+		public ResizeableCanvas() {
+			super();
+		}
+
+		@Override
+		public boolean isResizable() {
+			return true;
+		}
 	}
 }
