@@ -6,8 +6,10 @@ import io.github.vftdan.wnsirs.methods.*;
 import io.github.vftdan.wnsirs.util.*;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.function.*;
 
+import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
@@ -22,6 +24,24 @@ public class MainUi extends Application {
 	NetworkVisualization networkVisualization = new NetworkVisualization(null);
 	Pane canvasPane = new Pane();
 	TextArea infoArea = new TextArea();
+	BlockingQueue<String> pendingUserMessages = new LinkedBlockingDeque();
+	AnimationTimer userMessageTimer = new AnimationTimer() {
+		long lastRan = 0;
+		@Override
+		public void handle(long now) {
+			if (lastRan != 0 && (now - lastRan) < 10000000)
+				return;
+			var builder = new StringBuilder();
+			while (true) {
+				var s = pendingUserMessages.poll();
+				if (s == null)
+					break;
+				builder.append(s + "\n\n");
+			}
+			infoArea.appendText(builder.toString());
+			lastRan = now;
+		}
+	};
 	GridPane mainPane = new GridPane();
 	Button addParameterButton = new Button("Add parameter");
 	Button runSimulationButton = new Button("Run simulation");
@@ -61,8 +81,10 @@ public class MainUi extends Application {
 	}
 
 	public void showUserMessage(String s) {
-		synchronized(infoArea) {
-			infoArea.appendText(s + "\n\n");
+		try {
+			pendingUserMessages.put(s);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -256,6 +278,7 @@ public class MainUi extends Application {
 		scene.widthProperty().addListener(listener);
 		scene.heightProperty().addListener(listener);
 		networkVisualization.getTimer().start();
+		userMessageTimer.start();
 	}
 
 	public static void main(String[] args) {
