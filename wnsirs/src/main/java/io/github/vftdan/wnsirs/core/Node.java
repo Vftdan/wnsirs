@@ -31,4 +31,20 @@ public class Node extends SimulationObject {
 	public Node(double[] position) {
 		this.position = position;
 	}
+
+	@Override
+	public String toString() {
+		var position = this.position;
+		if (position == null)
+			return super.toString();
+		var builder = new StringBuilder();
+		builder.append("Node{");
+		for (int i = 0; i < position.length; ++i) {
+			if (i > 0)
+				builder.append(", ");
+			builder.append(position[i]);
+		}
+		builder.append("}");
+		return builder.toString();
+	}
 }

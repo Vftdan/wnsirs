@@ -32,4 +32,9 @@ public class Edge extends SimulationObject {
 	public Node getEnd() {
 		return end;
 	}
+
+	@Override
+	public String toString() {
+		return "Edge{" + getStart() + " -> " + getEnd() + "}";
+	}
 }
