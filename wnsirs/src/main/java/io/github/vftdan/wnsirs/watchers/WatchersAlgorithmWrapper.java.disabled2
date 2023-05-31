@@ -1,0 +1,9 @@
+package io.github.vftdan.wnsirs.watchers;
+
+import io.github.vftdan.wnsirs.core.*;
+
+public class WatchersAlgorithmWrapper extends CompositeAlgorithmPart {
+	{
+		defaultRole = "watchers";
+	}
+}

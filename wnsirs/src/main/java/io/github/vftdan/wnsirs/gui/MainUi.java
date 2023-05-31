@@ -4,6 +4,7 @@ import io.github.vftdan.wnsirs.core.*;
 import io.github.vftdan.wnsirs.core.Node;
 import io.github.vftdan.wnsirs.methods.*;
 import io.github.vftdan.wnsirs.util.*;
+import io.github.vftdan.wnsirs.watchers.Watchers;
 
 import java.util.*;
 import java.util.concurrent.*;
@@ -50,6 +51,7 @@ public class MainUi extends Application {
 		put("General ant behavior", () -> new GeneralAntBehaviorParameterChooser());
 		put("Delta pheromone formula", () -> new DeltaPheromoneParameterChooser());
 		put("Heuristic formula", () -> new HeuristicParameterChooser());
+		put("Watch pheromone update", () -> new WatcherParameterChooser("Watch pheromone update", Watchers.pheromoneChangeWatcher));
 	}};
 	Thread schedulingThread = null;
 	Thread spawnThread = null;
